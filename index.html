@@ -1,50 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Service Booking</title>
-<link rel="stylesheet" href="style.css">
+  <title>Book Service</title>
 </head>
 <body>
-<div class="container">
   <h2>Book a Service</h2>
   <form id="bookingForm">
-    <input type="text" id="name" placeholder="Your Name" required>
-    <input type="text" id="phone" placeholder="Phone" required>
-    <input type="email" id="email" placeholder="Email" required>
-    <select id="service" required>
-      <option value="">Select Service</option>
-      <option value="AC Repair">AC Repair ($500, High)</option>
-      <option value="Plumbing">Plumbing ($300, Medium)</option>
-      <option value="Electrical">Electrical ($400, Low)</option>
-    </select>
-    <button type="button" onclick="bookService()">Book Now</button>
+    <input type="text" name="name" placeholder="Your Name" required><br>
+    <input type="text" name="phone" placeholder="Phone" required><br>
+    <input type="email" name="email" placeholder="Email"><br>
+    <select name="service">
+      <option>AC Repair</option>
+      <option>Plumbing</option>
+      <option>Electrical</option>
+    </select><br>
+    <button type="submit">Submit</button>
   </form>
-  <div id="message"></div>
-</div>
+  <p id="result"></p>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzggyb9cWoZCoJwJo1__xN7GvNZdCCwDDTAPL-rg9JKF_zaGM-Dr70tZ-fqfeHAZ6WYyw/exec";
-
-function bookService() {
-  const name = document.getElementById("name").value;
-  const phone = document.getElementById("phone").value;
-  const email = document.getElementById("email").value;
-  const service = document.getElementById("service").value;
-
-  if (!name || !phone || !email || !service) { alert("Fill all fields"); return; }
-
-  fetch(API_URL, {
-    method: "POST", 
-    body: JSON.stringify({ name, phone, email, service })
-  }).then(res => res.json())
-    .then(data => {
-      document.getElementById("message").innerHTML = 
-        `Service booked! Your Request ID: <b>${data.requestId}</b><br>Charges: $${data.charges}`;
-      document.getElementById("bookingForm").reset();
-    });
-}
+const scriptURL = "https://script.google.com/macros/s/AKfycbzggyb9cWoZCoJwJo1__xN7GvNZdCCwDDTAPL-rg9JKF_zaGM-Dr70tZ-fqfeHAZ6WYyw/exec";
+document.getElementById("bookingForm").addEventListener("submit", e => {
+  e.preventDefault();
+  fetch(scriptURL, {
+    method: "POST",
+    body: JSON.stringify(Object.fromEntries(new FormData(e.target)))
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("result").innerText = 
+      "Request submitted! Your ID: " + data.requestId + " | Charges: $" + data.charges;
+  });
+});
 </script>
 </body>
 </html>
