@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Payment</title>
+</head>
+<body>
+  <h2>Pay for Service</h2>
+  <input id="reqID" placeholder="Enter Request ID">
+  <button onclick="pay()">Pay Now</button>
+  <div id="result"></div>
+
+<script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbzggyb9cWoZCoJwJo1__xN7GvNZdCCwDDTAPL-rg9JKF_zaGM-Dr70tZ-fqfeHAZ6WYyw/exec";
+function pay() {
+  let reqId = document.getElementById("reqID").value;
+  fetch(scriptURL, {
+    method: "POST",
+    body: JSON.stringify({ action: "payment", requestId: reqId, paymentId: "TEST123" })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("result").innerText = data.message;
+  });
+}
+</script>
+</body>
+</html>
