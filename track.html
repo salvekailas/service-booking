@@ -1,62 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Track Request</title>
-<link rel="stylesheet" href="style.css">
+  <title>Track Request</title>
 </head>
 <body>
-<div class="container">
   <h2>Track Your Request</h2>
-  <input type="text" id="requestId" placeholder="Enter Request ID">
-  <button onclick="trackRequest()">Track</button>
+  <input id="reqID" placeholder="Enter Request ID">
+  <button onclick="track()">Search</button>
   <div id="result"></div>
-</div>
 
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzggyb9cWoZCoJwJo1__xN7GvNZdCCwDDTAPL-rg9JKF_zaGM-Dr70tZ-fqfeHAZ6WYyw/exec";
-
-function trackRequest() {
-  const reqId = document.getElementById("requestId").value;
-  if(!reqId){ alert("Enter Request ID"); return; }
-
-  fetch(API_URL + "?requestId=" + reqId)
-  .then(res=>res.json())
-  .then(data=>{
-    if(!data.success){ alert("Request not found"); return; }
-    let html = `
-      <b>Request ID:</b> ${data.requestId}<br>
-      <b>Service:</b> ${data.service}<br>
-      <b>Charges:</b> $${data.charges}<br>
-      <b>Status:</b> ${data.status}<br>
-      <b>Engineer:</b> ${data.engineerName || "-"}<br>
-      <b>Phone:</b> ${data.engineerPhone || "-"}<br>
-    `;
-    if(data.status==="Completed" && data.paymentStatus==="Pending"){
-      html += `<button onclick="payNow('${data.requestId}', ${data.charges})">Pay Now</button>`;
-    }
-    document.getElementById("result").innerHTML = html;
-  });
-}
-
-function payNow(reqId, amount){
-  var options = {
-    "key":"rzp_test_xxxxxxxx",
-    "amount": amount*100,
-    "currency":"USD",
-    "name":"Service Expert",
-    "description":"Payment for "+reqId,
-    "handler": function(response){
-      fetch(API_URL,{
-        method:"POST",
-        body: JSON.stringify({requestId:reqId, paymentId:response.razorpay_payment_id})
-      });
-      alert("Payment Successful!");
-    }
-  };
-  var rzp=new Razorpay(options); rzp.open();
+const scriptURL = "https://script.google.com/macros/s/AKfycbzggyb9cWoZCoJwJo1__xN7GvNZdCCwDDTAPL-rg9JKF_zaGM-Dr70tZ-fqfeHAZ6WYyw/exec";
+function track() {
+  fetch(scriptURL + "?RequestID=" + document.getElementById("reqID").value)
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById("result").innerHTML = `
+          <p>Service: ${data.service}</p>
+          <p>Status: ${data.status}</p>
+          <p>Engineer: ${data.engineerName}</p>
+          <p>Charges: $${data.charges}</p>
+          <p>Payment: ${data.paymentStatus}</p>`;
+      } else {
+        document.getElementById("result").innerText = "Request not found.";
+      }
+    });
 }
 </script>
 </body>
