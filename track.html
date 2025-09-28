@@ -4,29 +4,41 @@
   <title>Track Request</title>
 </head>
 <body>
-  <h2>Track Your Request</h2>
-  <input id="reqID" placeholder="Enter Request ID">
-  <button onclick="track()">Search</button>
+  <h2>Track Your Service Request</h2>
+  <input type="text" id="reqId" placeholder="Enter Request ID">
+  <button onclick="trackRequest()">Track</button>
+
   <div id="result"></div>
 
-<script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbzggyb9cWoZCoJwJo1__xN7GvNZdCCwDDTAPL-rg9JKF_zaGM-Dr70tZ-fqfeHAZ6WYyw/exec";
-function track() {
-  fetch(scriptURL + "?RequestID=" + document.getElementById("reqID").value)
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        document.getElementById("result").innerHTML = `
-          <p>Service: ${data.service}</p>
-          <p>Status: ${data.status}</p>
-          <p>Engineer: ${data.engineerName}</p>
-          <p>Charges: $${data.charges}</p>
-          <p>Payment: ${data.paymentStatus}</p>`;
-      } else {
-        document.getElementById("result").innerText = "Request not found.";
-      }
-    });
-}
-</script>
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzggyb9cWoZCoJwJo1__xN7GvNZdCCwDDTAPL-rg9JKF_zaGM-Dr70tZ-fqfeHAZ6WYyw/exec"; // same as before
+
+    function trackRequest(){
+      let id = document.getElementById("reqId").value;
+      fetch(`${scriptURL}?requestId=${id}`)
+      .then(res => res.json())
+      .then(data => {
+        if(data.requestId){
+          document.getElementById("result").innerHTML = `
+            <p><b>Request ID:</b> ${data.requestId}</p>
+            <p><b>Service:</b> ${data.service}</p>
+            <p><b>Status:</b> ${data.status}</p>
+            <p><b>Engineer:</b> ${data.engineer || 'Not Assigned'}</p>
+            <p><b>Engineer Phone:</b> ${data.engineerPhone || 'N/A'}</p>
+            <p><b>Charges:</b> $${data.charges}</p>
+          `;
+        } else {
+          document.getElementById("result").innerHTML = `<p style="color:red">${data.message}</p>`;
+        }
+      });
+    }
+
+    // Auto-track if link has requestId
+    const urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.get("requestId")){
+      document.getElementById("reqId").value = urlParams.get("requestId");
+      trackRequest();
+    }
+  </script>
 </body>
 </html>
